@@ -423,10 +423,19 @@ export default function FlyingShip({ reduced }) {
     canvas.addEventListener('touchmove', onTouchMove, { passive: false });
     canvas.addEventListener('touchend', onTouchEnd);
 
-    frameId = requestAnimationFrame(tick);
+    const begin = () => {
+      frameId = requestAnimationFrame(tick);
+    };
+
+    if (document.body.classList.contains('is-launched')) {
+      begin();
+    } else {
+      window.addEventListener('portfolio:launched', begin, { once: true });
+    }
 
     return () => {
       cancelAnimationFrame(frameId);
+      window.removeEventListener('portfolio:launched', begin);
       window.removeEventListener('resize', resizeCanvas);
       canvas.removeEventListener('touchstart', onTouchStart);
       canvas.removeEventListener('touchmove', onTouchMove);

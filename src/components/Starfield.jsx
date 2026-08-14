@@ -20,7 +20,7 @@ export default function Starfield({ reduced }) {
     const resize = () => {
       W = cv.width = window.innerWidth;
       H = cv.height = window.innerHeight;
-      stars = Array.from({ length: Math.min(280, W / 4.8) }, () => ({
+      stars = Array.from({ length: Math.min(160, W / 7) }, () => ({
         x: Math.random() * W,
         y: Math.random() * H,
         r: Math.random() * 1.5 + 0.2,
@@ -98,14 +98,24 @@ export default function Starfield({ reduced }) {
     resize();
     window.addEventListener('resize', resize);
     window.addEventListener('scroll', onScroll, { passive: true });
-    meteorTimeout = setTimeout(spawnMeteor, 1800);
-    frameId = requestAnimationFrame(draw);
+
+    const begin = () => {
+      meteorTimeout = setTimeout(spawnMeteor, 1800);
+      frameId = requestAnimationFrame(draw);
+    };
+
+    if (document.body.classList.contains('is-launched')) {
+      begin();
+    } else {
+      window.addEventListener('portfolio:launched', begin, { once: true });
+    }
 
     return () => {
       cancelAnimationFrame(frameId);
       clearTimeout(meteorTimeout);
       window.removeEventListener('resize', resize);
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('portfolio:launched', begin);
     };
   }, [reduced]);
 

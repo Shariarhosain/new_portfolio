@@ -1,15 +1,14 @@
 import { useEffect } from 'react';
-import { waitForGsap } from '../utils/gsap';
+import { waitForFonts, waitForGsap } from '../utils/gsap';
 import { projectsData } from '../data/portfolioData';
 
 const GLYPHS = '!<>-_\\/[]{}—=+*^?#@%&';
 
 /*
- * Replicates the original HTML portfolio's script order exactly:
- * 1. Create ScrollSmoother (paused) and the hero timeline (paused).
- * 2. Run the loader boot sequence; on liftoff: hide loader, unlock body,
- *    unpause smoother, play hero, refresh triggers.
- * 3. Create every other ScrollTrigger immediately (not deferred).
+ * Launch order tuned to stop title hitch:
+ * 1. Boot counter runs immediately (fonts load in parallel).
+ * 2. Hero uses plain line fades — no SplitText rewrite.
+ * 3. Orbit / ScrollSmoother / pins start only AFTER the title finishes.
  */
 export function useGsapAnimations() {
   useEffect(() => {
@@ -20,6 +19,7 @@ export function useGsapAnimations() {
     let ctx = null;
     let smoother = null;
     let cancelled = false;
+    let deferTimer = null;
 
     document.body.classList.add('locked');
 
@@ -33,105 +33,18 @@ export function useGsapAnimations() {
 
     safetyUnlock = window.setTimeout(unlock, 5000);
 
+    // Start GSAP immediately — don't block the boot counter on font download
     waitForGsap()
-      .then((gsap) => {
+      .then(async (gsap) => {
         if (cancelled) return;
 
         const ScrollTrigger = window.ScrollTrigger;
         const ScrollSmoother = window.ScrollSmoother;
         const SplitText = window.SplitText;
+        const fontsReady = waitForFonts(2000);
 
-        ctx = gsap.context(() => {
-          /* ============ SMOOTH SCROLL (desktop only — native scroll on mobile) ============ */
-          if (!reduced && ScrollSmoother && isDesktop) {
-            smoother = ScrollSmoother.create({
-              wrapper: '#smooth-wrapper',
-              content: '#smooth-content',
-              smooth: 1.8,
-              effects: true,
-              smoothTouch: 0.15,
-            });
-            smoother.paused(true); // locked until launch sequence finishes
-          }
-
-          /* ============ HERO TIMELINE (built now, played after loader) ============ */
-          let heroTl = null;
-          if (!reduced && SplitText) {
-            const heroSplit = new SplitText('#heroTitle', { type: 'chars,lines' });
-            gsap.set('#heroTitle', { perspective: 900 });
-            heroTl = gsap.timeline({ paused: true, defaults: { ease: 'power4.out' } });
-            heroTl
-              .from(heroSplit.chars, {
-                y: 120,
-                rotationX: -95,
-                opacity: 0,
-                transformOrigin: '50% 100% -20',
-                duration: 1.15,
-                stagger: { each: 0.026, from: 'start' },
-              }, 0)
-              .from('nav', { y: -70, opacity: 0, duration: 0.8, ease: 'power3.out' }, 0)
-              .from('.nav-links li', { y: -24, opacity: 0, duration: 0.6, stagger: 0.07 }, 0.15)
-              .from('.reveal-hero', { y: 36, opacity: 0, duration: 0.9, stagger: 0.14 }, 0.45)
-              .from('.orbit', { scale: 0.55, opacity: 0, duration: 1.2, stagger: 0.12, ease: 'expo.out' }, 0.35)
-              .from('.core', { scale: 0, duration: 1, ease: 'back.out(1.7)' }, 0.5)
-              .from('.sat', { scale: 0, opacity: 0, duration: 0.7, stagger: 0.08, ease: 'back.out(2)' }, 0.8)
-              .from('.astro', { y: -50, opacity: 0, duration: 1 }, 0.9)
-              .from('.scroll-hint', { opacity: 0, duration: 1 }, 1.2);
-          }
-
-          /* ============ LAUNCH-SEQUENCE PRELOADER ============ */
-          const loader = document.getElementById('loader');
-          if (reduced) {
-            unlock();
-          } else {
-            const statuses = [
-              'FUELING MAIN ENGINES',
-              'GUIDANCE SYSTEMS ONLINE',
-              'TELEMETRY LINKED',
-              'T-MINUS <b>3</b>',
-              'T-MINUS <b>2</b>',
-              'T-MINUS <b>1</b>',
-              '<b>LIFTOFF</b>',
-            ];
-            const lcount = document.getElementById('lcount');
-            const lbar = document.getElementById('lbar');
-            const lstatus = document.getElementById('lstatus');
-            const boot = { v: 0 };
-            const bootTl = gsap.timeline({
-              onComplete() {
-                gsap
-                  .timeline()
-                  .to('.l-inner', { opacity: 0, scale: 0.94, duration: 0.35, ease: 'power2.in' })
-                  .to('.l-curtain.c1', { yPercent: -101, duration: 0.9, ease: 'power4.inOut' }, '-=.05')
-                  .to('.l-curtain.c2', { yPercent: 101, duration: 0.9, ease: 'power4.inOut' }, '<')
-                  .add(() => {
-                    if (loader) loader.style.display = 'none';
-                    document.body.classList.remove('locked');
-                    document.documentElement.style.setProperty(
-                      '--section-h',
-                      `${window.visualViewport?.height ?? window.innerHeight}px`
-                    );
-                    if (smoother) smoother.paused(false);
-                    if (heroTl) heroTl.play();
-                    ScrollTrigger.refresh();
-                  }, '-=.25');
-              },
-            });
-            bootTl.to(boot, {
-              v: 100,
-              duration: 2.1,
-              ease: 'power2.inOut',
-              onUpdate() {
-                const n = Math.round(boot.v);
-                if (lcount) lcount.textContent = String(n).padStart(3, '0');
-                if (lbar) lbar.style.width = `${n}%`;
-                if (lstatus) {
-                  lstatus.innerHTML =
-                    statuses[Math.min(statuses.length - 1, Math.floor((n / 100) * statuses.length))];
-                }
-              },
-            });
-          }
+        const setupScrollEffects = () => {
+          if (cancelled) return;
 
           /* ============ MOON: float + scroll parallax ============ */
           if (!reduced) {
@@ -408,11 +321,149 @@ export function useGsapAnimations() {
 
           ScrollTrigger.sort();
           ScrollTrigger.refresh();
+        };
+
+        const buildHeroTimeline = () => {
+          const lines = gsap.utils.toArray('#heroTitle .hero-title-line');
+          const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out' } });
+
+          // Cheap transforms only — no SplitText DOM rewrite on reveal
+          gsap.set(lines, { y: 36, opacity: 0 });
+          gsap.set('.reveal-hero', { y: 18, opacity: 0 });
+          gsap.set('nav', { y: -24, opacity: 0 });
+          gsap.set('.orbit-wrap', { opacity: 0, scale: 0.92 });
+          gsap.set('.scroll-hint', { opacity: 0 });
+
+          tl.to(lines, { y: 0, opacity: 1, duration: 0.55, stagger: 0.07 }, 0)
+            .to('nav', { y: 0, opacity: 1, duration: 0.45 }, 0)
+            .to('.reveal-hero', { y: 0, opacity: 1, duration: 0.5, stagger: 0.08 }, 0.18)
+            .to('.orbit-wrap', { opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out' }, 0.2)
+            .to('.scroll-hint', { opacity: 1, duration: 0.4 }, 0.45);
+
+          return tl;
+        };
+
+        ctx = gsap.context(() => {
+          // ScrollSmoother is created AFTER the hero text finishes — creating it
+          // during reveal was freezing the title animation.
+
+          const createSmoother = () => {
+            if (reduced || !ScrollSmoother || !isDesktop || smoother) return;
+            smoother = ScrollSmoother.create({
+              wrapper: '#smooth-wrapper',
+              content: '#smooth-content',
+              smooth: 1.6,
+              effects: false,
+              smoothTouch: 0.1,
+            });
+          };
+
+          const launchPage = (heroTl) => {
+            const markLaunched = () => {
+              document.body.classList.add('is-launched');
+              window.dispatchEvent(new CustomEvent('portfolio:launched'));
+            };
+
+            const armHeavyWork = () => {
+              if (cancelled || !ctx) return;
+              markLaunched();
+              deferTimer = window.setTimeout(() => {
+                if (cancelled || !ctx) return;
+                const idle = window.requestIdleCallback || ((cb) => window.setTimeout(cb, 250));
+                idle(
+                  () => {
+                    if (cancelled || !ctx) return;
+                    ctx.add(() => {
+                      createSmoother();
+                      setupScrollEffects();
+                    });
+                  },
+                  { timeout: 800 }
+                );
+              }, 200);
+            };
+
+            if (heroTl) {
+              heroTl.eventCallback('onComplete', armHeavyWork);
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  if (!cancelled) heroTl.play();
+                });
+              });
+            } else {
+              armHeavyWork();
+            }
+          };
+
+          const loader = document.getElementById('loader');
+          if (reduced) {
+            unlock();
+            document.body.classList.add('is-launched');
+            window.dispatchEvent(new CustomEvent('portfolio:launched'));
+            createSmoother();
+            setupScrollEffects();
+            return;
+          }
+
+          const statuses = [
+            'FUELING MAIN ENGINES',
+            'GUIDANCE SYSTEMS ONLINE',
+            'TELEMETRY LINKED',
+            'T-MINUS <b>3</b>',
+            'T-MINUS <b>2</b>',
+            'T-MINUS <b>1</b>',
+            '<b>LIFTOFF</b>',
+          ];
+          const lcount = document.getElementById('lcount');
+          const lbar = document.getElementById('lbar');
+          const lstatus = document.getElementById('lstatus');
+          const boot = { v: 0 };
+
+          gsap.to(boot, {
+            v: 100,
+            duration: 1.05,
+            ease: 'power2.inOut',
+            onUpdate() {
+              const n = Math.round(boot.v);
+              if (lcount) lcount.textContent = String(n).padStart(3, '0');
+              if (lbar) lbar.style.width = `${n}%`;
+              if (lstatus) {
+                lstatus.innerHTML =
+                  statuses[Math.min(statuses.length - 1, Math.floor((n / 100) * statuses.length))];
+              }
+            },
+            async onComplete() {
+              if (cancelled) return;
+              await fontsReady;
+              if (cancelled || !ctx) return;
+
+              let heroTl = null;
+              ctx.add(() => {
+                heroTl = buildHeroTimeline();
+              });
+
+              gsap
+                .timeline()
+                .to('.l-inner', { opacity: 0, scale: 0.96, duration: 0.2, ease: 'power2.in' })
+                .to('.l-curtain.c1', { yPercent: -101, duration: 0.55, ease: 'power3.inOut' }, '-=.03')
+                .to('.l-curtain.c2', { yPercent: 101, duration: 0.55, ease: 'power3.inOut' }, '<')
+                .add(() => {
+                  if (loader) loader.style.display = 'none';
+                  document.body.classList.remove('locked');
+                  document.documentElement.style.setProperty(
+                    '--section-h',
+                    `${window.visualViewport?.height ?? window.innerHeight}px`
+                  );
+                  launchPage(heroTl);
+                }, '-=.12');
+            },
+          });
         });
       })
       .catch(() => {
-        // GSAP failed to load — show the page without animations
         unlock();
+        document.body.classList.add('is-launched');
+        window.dispatchEvent(new CustomEvent('portfolio:launched'));
         document.querySelectorAll('.reveal').forEach((el) => {
           el.style.opacity = '1';
           el.style.transform = 'none';
@@ -422,9 +473,10 @@ export function useGsapAnimations() {
     return () => {
       cancelled = true;
       window.clearTimeout(safetyUnlock);
+      if (deferTimer) window.clearTimeout(deferTimer);
       if (ctx) ctx.revert();
       if (smoother) smoother.kill();
-      document.body.classList.remove('locked');
+      document.body.classList.remove('locked', 'is-launched');
     };
   }, []);
 }

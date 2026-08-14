@@ -8,16 +8,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;600&display=swap"
+    />
+    <link
       href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
     <title>Shariar Hosain — Software Engineer · Node.js · Microservices</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollSmoother.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
+    <script>
+      /* Apply viewport CSS vars before first paint to avoid hero layout jump */
+      (function () {
+        var h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+        var w = window.innerWidth;
+        var root = document.documentElement;
+        var mobile = w <= 820;
+        root.style.setProperty('--section-h', h + 'px');
+        root.style.setProperty('--nav-offset', mobile ? '3.25rem' : h <= 900 ? '4rem' : '4.75rem');
+      })();
+    </script>
   </head>
-  <body>
+  <body class="locked">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

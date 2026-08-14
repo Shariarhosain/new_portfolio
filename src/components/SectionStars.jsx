@@ -140,14 +140,24 @@ export default function SectionStars({ variant = 'default' }) {
     resize();
     observer.observe(parent);
     window.addEventListener('resize', resize);
-    frameId = requestAnimationFrame(draw);
-    meteorTimeout = setTimeout(spawnMeteor, 800);
+
+    const begin = () => {
+      frameId = requestAnimationFrame(draw);
+      meteorTimeout = setTimeout(spawnMeteor, 800);
+    };
+
+    if (document.body.classList.contains('is-launched')) {
+      begin();
+    } else {
+      window.addEventListener('portfolio:launched', begin, { once: true });
+    }
 
     return () => {
       cancelAnimationFrame(frameId);
       clearTimeout(meteorTimeout);
       observer.disconnect();
       window.removeEventListener('resize', resize);
+      window.removeEventListener('portfolio:launched', begin);
     };
   }, [variant]);
 
