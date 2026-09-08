@@ -21,6 +21,7 @@ export default function SEO() {
   useDynamicSEO(handleSectionChange);
 
   const jsonLd = getJsonLd();
+  const canonical = `${siteConfig.siteUrl}/`;
 
   return (
     <Helmet>
@@ -29,14 +30,20 @@ export default function SEO() {
       <meta name="description" content={seo.description} />
       <meta name="keywords" content={seo.keywords} />
       <meta name="author" content={siteConfig.name} />
-      <meta name="robots" content="index, follow, max-image-preview:large" />
-      <link rel="canonical" href={defaultSEO.canonical} />
+      <meta
+        name="robots"
+        content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+      />
+      <link rel="canonical" href={canonical} />
 
       <meta property="og:type" content={defaultSEO.ogType} />
-      <meta property="og:url" content={defaultSEO.canonical} />
+      <meta property="og:url" content={canonical} />
       <meta property="og:title" content={seo.title} />
       <meta property="og:description" content={seo.description} />
       <meta property="og:image" content={defaultSEO.ogImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={`${siteConfig.name} — ${siteConfig.title}`} />
       <meta property="og:locale" content="en_US" />
       <meta property="og:site_name" content={`${siteConfig.shortName} Portfolio`} />
 
@@ -49,9 +56,7 @@ export default function SEO() {
       <meta name="geo.placename" content="Dhaka" />
 
       <meta name="active-section" content={activeSection} />
-      <script type="application/ld+json">
-        {JSON.stringify(jsonLd)}
-      </script>
+      <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
     </Helmet>
   );
 }

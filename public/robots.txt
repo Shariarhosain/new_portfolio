@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://shariarhosain.dev/sitemap.xml
+# Prefer www — apex redirects here
+Sitemap: https://www.sanny.pro/sitemap.xml

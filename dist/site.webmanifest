@@ -1,0 +1,24 @@
+{
+  "name": "Shariar Hosain Sanny — Software Engineer",
+  "short_name": "Sanny",
+  "description": "Portfolio of MD. Shariar Hosain Sanny — Software Engineer · Node.js · Microservices · Full Stack",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050506",
+  "theme_color": "#050506",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

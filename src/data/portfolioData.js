@@ -4,14 +4,14 @@ export const siteConfig = {
   title: 'Software Engineer',
   tagline: 'Node.js · Microservices · Backend Systems',
   location: 'Dhaka, Bangladesh',
-  address: 'North Kafrul, Dhaka',
+  address: 'North Kafrul, Kachukhet, Dhaka',
   email: 'shariarhosain131529@gmail.com',
   phone: '+8801757525035',
   phoneDisplay: '+880 1757-525035',
   whatsapp: 'https://wa.me/8801757525035',
   github: 'https://github.com/Shariarhosain',
   linkedin: 'https://www.linkedin.com/in/shariar-hosain-sanny/',
-  siteUrl: 'https://sanny.pro',
+  siteUrl: 'https://www.sanny.pro',
   year: 2026,
 };
 
@@ -51,10 +51,10 @@ export const aboutData = {
   tag: 'MISSION BRIEFING',
   title: 'Backend engineer. Team pilot.',
   titleAccent: 'Problem hunter.',
-  text: 'I focus on building efficient, scalable and reliable applications — and on the people who build them with me. With a background spanning teaching, problem-solving and team leadership, I enjoy tackling complex challenges and finding practical solutions, whether that\'s untangling a queue backlog at 2 AM or coordinating five developers toward a deadline. My drive to keep learning and to help others is what pushes every mission forward.',
+  text: 'As a Software Engineer, I focus on building efficient, scalable, and reliable applications. I have experience in teaching, problem solving, requirements analysis, and full-stack application development. I enjoy tackling complex challenges and finding practical solutions — whether that\'s untangling a queue backlog at 2 AM or coordinating a team toward a deadline. My passion for education and helping others motivates me to keep learning and make a positive impact.',
   stats: [
     { value: 30, label: '% faster API response times' },
-    { value: 50, label: '% team productivity boost' },
+    { value: 20, label: '% team productivity boost' },
     { value: 12, label: 'production launches & counting' },
   ],
 };
@@ -71,12 +71,12 @@ export const experienceData = {
       org: 'MAK Tech (maktechgroup)',
       bullets: [
         'Backend development across projects with Node.js — Express.js, NestJS, Prisma, Redis, RabbitMQ.',
-        'Led problem-solving initiatives and team coordination, resolving critical issues and lifting team productivity by 50%.',
+        'Led problem-solving initiatives and team coordination, resolving critical issues and enhancing team productivity by 20%.',
         'Collaborated with international clients on requirements, task management and successful delivery.',
       ],
     },
     {
-      when: '03/2024 — 05/2025',
+      when: '03/2025 — 05/2025',
       role: 'MERN Developer, Backend (Internship)',
       org: 'MAK Tech (maktechgroup)',
       bullets: [

@@ -18,27 +18,27 @@ const baseKeywords = [
 ];
 
 export const defaultSEO = {
-  title: `${siteConfig.shortName} — ${siteConfig.title} · Node.js · Microservices`,
+  title: `${siteConfig.shortName} Sanny — ${siteConfig.title} · Node.js · Microservices`,
   description:
-    'MD. Shariar Hosain Sanny is a Software Engineer from Dhaka, Bangladesh specializing in Node.js microservices, NestJS, Redis, RabbitMQ, and scalable backend systems. View projects, experience, and contact.',
+    'MD. Shariar Hosain Sanny is a Software Engineer from Dhaka, Bangladesh specializing in Node.js microservices, NestJS, Redis, RabbitMQ, and scalable full-stack systems. View projects, experience, and contact.',
   keywords: baseKeywords.join(', '),
   ogType: 'website',
   ogImage: `${siteConfig.siteUrl}/og-image.png`,
   twitterCard: 'summary_large_image',
-  canonical: siteConfig.siteUrl,
+  canonical: `${siteConfig.siteUrl}/`,
 };
 
 export const sectionSEO = {
   hero: {
-    title: `${siteConfig.shortName} — Software Engineer · Node.js Microservices`,
+    title: `${siteConfig.shortName} Sanny — Software Engineer · Node.js Microservices`,
     description:
-      'Software Engineer piloting Node.js microservices through production orbit. Express, NestJS, Redis, RabbitMQ — scalable, efficient, reliable backends from Dhaka, Bangladesh.',
-    keywords: [...baseKeywords, 'portfolio', 'hire backend developer'].join(', '),
+      'Software Engineer piloting Node.js microservices through production orbit. Express, NestJS, Redis, RabbitMQ — scalable, efficient, reliable full-stack systems from Dhaka, Bangladesh.',
+    keywords: [...baseKeywords, 'portfolio', 'hire software engineer', 'hire backend developer'].join(', '),
   },
   about: {
-    title: `About ${siteConfig.shortName} — Backend Engineer & Team Lead`,
+    title: `About ${siteConfig.shortName} — Software Engineer & Full Stack`,
     description:
-      'Backend engineer focused on efficient, scalable applications and team leadership. 30% faster API response times, 50% team productivity boost, 12+ production launches.',
+      'Software engineer focused on efficient, scalable applications. Experience in teaching, problem solving, requirements analysis, and full-stack development — Node.js, microservices, and team collaboration.',
     keywords: [...baseKeywords, 'team leadership', 'system design', 'API optimization'].join(', '),
   },
   experience: {
@@ -91,12 +91,14 @@ export function getJsonLd() {
         name: siteConfig.name,
         alternateName: siteConfig.shortName,
         jobTitle: siteConfig.title,
-        email: siteConfig.email,
+        email: `mailto:${siteConfig.email}`,
         telephone: siteConfig.phone,
-        url: siteConfig.siteUrl,
+        url: `${siteConfig.siteUrl}/`,
+        image: defaultSEO.ogImage,
         sameAs: [siteConfig.github, siteConfig.linkedin],
         address: {
           '@type': 'PostalAddress',
+          streetAddress: siteConfig.address,
           addressLocality: 'Dhaka',
           addressCountry: 'BD',
         },
@@ -109,13 +111,14 @@ export function getJsonLd() {
           'RabbitMQ',
           'PostgreSQL',
           'Prisma',
+          'Full Stack Development',
           'System Design',
         ],
       },
       {
         '@type': 'WebSite',
         '@id': `${siteConfig.siteUrl}/#website`,
-        url: siteConfig.siteUrl,
+        url: `${siteConfig.siteUrl}/`,
         name: `${siteConfig.shortName} Portfolio`,
         description: defaultSEO.description,
         publisher: { '@id': `${siteConfig.siteUrl}/#person` },
@@ -124,10 +127,11 @@ export function getJsonLd() {
       {
         '@type': 'ProfilePage',
         '@id': `${siteConfig.siteUrl}/#profilepage`,
-        url: siteConfig.siteUrl,
+        url: `${siteConfig.siteUrl}/`,
         name: defaultSEO.title,
         isPartOf: { '@id': `${siteConfig.siteUrl}/#website` },
         about: { '@id': `${siteConfig.siteUrl}/#person` },
+        mainEntity: { '@id': `${siteConfig.siteUrl}/#person` },
         description: defaultSEO.description,
       },
     ],
