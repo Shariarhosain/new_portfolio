@@ -11,7 +11,7 @@ export const siteConfig = {
   whatsapp: 'https://wa.me/8801757525035',
   github: 'https://github.com/Shariarhosain',
   linkedin: 'https://www.linkedin.com/in/shariar-hosain-sanny/',
-  siteUrl: 'https://shariarhosain.dev',
+  siteUrl: 'https://sanny.pro',
   year: 2026,
 };
 
